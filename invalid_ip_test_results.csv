@@ -1,0 +1,69 @@
+256.0.0.1,PASS,Octet out of range: 256
+192.168.1.256,PASS,Octet out of range: 256
+300.300.300.300,PASS,Octet out of range: 300
+-1.2.3.4,PASS,Invalid character in IP address: -
+192.168.1,PASS,IPv4 address must have exactly 4 octets
+192.168.1.1.1,PASS,IPv4 address must have exactly 4 octets
+1.2.3,PASS,IPv4 address must have exactly 4 octets
+1.2.3.4.5,PASS,IPv4 address must have exactly 4 octets
+192.168.1.a,PASS,Invalid character in IP address: a
+a.b.c.d,PASS,Invalid character in IP address: a
+1.2.3.4a,PASS,Invalid character in IP address: a
+ 192.168.1.1,PASS,Invalid character in IP address:  
+192.168.1.1 ,PASS,Invalid character in IP address:  
+192. 168.1.1,PASS,Invalid character in IP address:  
+192.168..1,PASS,Invalid octet: 
+.192.168.1.1,PASS,IPv4 address must have exactly 4 octets
+192.168.1.1.,PASS,IPv4 address must have exactly 4 octets
+192.168.01.1,PASS,Leading zeros are not allowed: 01
+192.168.1.001,PASS,Leading zeros are not allowed: 001
+0192.168.1.1,PASS,Leading zeros are not allowed: 0192
+...,PASS,Invalid octet: 
+1...1,PASS,Invalid octet: 
+1..2.3,PASS,Invalid octet: 
+not an ip,PASS,Invalid character in IP address: o
+192/168/1/1,PASS,Invalid character in IP address: /
+192:168:1:1,PASS,Invalid character in IP address: :
+localhost,PASS,Invalid character in IP address: l
+0.0.0.256,PASS,Octet out of range: 256
+255.255.255.256,PASS,Octet out of range: 256
+256.256.256.256,PASS,Octet out of range: 256
+1.1.1,PASS,IPv4 address must have exactly 4 octets
+192.168.0.00001,PASS,Leading zeros are not allowed: 00001
+1234.123.123.123,PASS,Octet out of range: 1234
+1.12345.1.12345,PASS,Octet out of range: 12345
+0xC0.0xA8.0x01.0x01,PASS,Invalid character in IP address: C
+0300.0250.0001.0001,PASS,Octet out of range: 300
+11000000.10101000.00000001.00000001,PASS,Octet out of range: 11000000
+192.168.0x01.1,PASS,Leading zeros are not allowed: 0x01
+192.168.1.0377,PASS,Octet out of range: 377
+255.255.255.256,PASS,Octet out of range: 256
+127.0.0.2,FAIL
+169.254.0.1,FAIL
+192,168,1,1,PASS,Invalid character in IP address: ,
+192_168_1_1,PASS,Invalid character in IP address: _
+192%2E168%2E1%2E1,PASS,Invalid character in IP address: %
+%31%39%32%2E%31%36%38%2E%31%2E%31,PASS,Invalid character in IP address: %
+１９２。１６８。１。１,PASS,Invalid character in IP address: 。
+192。168。1。1,PASS,Invalid character in IP address: 。
+0300.0250.0001.0001,PASS,Octet out of range: 300
+0xC0.0xA8.0x01.0x01,PASS,Invalid character in IP address: C
+192.0xa8.01.0001,PASS,Invalid character in IP address: a
+4294967296,PASS,IPv4 address must have exactly 4 octets
+4294967295,PASS,IPv4 address must have exactly 4 octets
+-1,PASS,Invalid character in IP address: -
+18446744073709551616,PASS,IPv4 address must have exactly 4 octets
+18446744073709551615,PASS,IPv4 address must have exactly 4 octets
+99999999999999999999999999999999999999,PASS,IPv4 address must have exactly 4 octets
+1e10.1e10.1e10.1e10,PASS,Invalid character in IP address: e
+MTkyLjE2OC4xLjE=,PASS,Invalid character in IP address: M
+&#49;&#57;&#50;&#46;&#49;&#54;&#56;&#46;&#49;&#46;&#49;,PASS,Invalid character in IP address: &
+xn--1-7sbf9ahchdtfg.1.1,PASS,Invalid character in IP address: -
+000000192.000000168.000000001.000000001,PASS,Leading zeros are not allowed: 000000192
+0b11000000.0b10101000.0b00000001.0b00000001,PASS,Invalid character in IP address: b
+0o300.0o250.0o001.0o001,PASS,Invalid character in IP address: o
+192.-168.1.1,PASS,Invalid character in IP address: -
+192.168.-1.1,PASS,Invalid character in IP address: -
+1.92e2.1.68e2,PASS,Invalid character in IP address: e
+١٩٢.١٦٨.١.١,PASS,Invalid character in IP address: ١
+१९२.१६८.१.१,PASS,Invalid character in IP address: १
