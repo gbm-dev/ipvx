@@ -182,7 +182,7 @@ Type definitions used across the library
 
 
 /lib/bitwise.ts: Contains the lowest-level bitwise operations.
-/lib/types.ts: Defines the basic types used throughout the IP version-specific code.
+/types.ts: Defines the basic types used throughout the IP version-specific code.
 /core/address.ts: Contains the basic IP address operations that build directly on the bitwise logic. For example:
 
 Converting between string and bitflag representations
@@ -191,4 +191,4 @@ Extracting or setting individual octets
 
 
 /core/subnet.ts, /core/routing.ts, /core/nat.ts, /core/dhcp.ts: These files contain more complex operations that often build upon the basic address operations.
-/utils/validation.ts and /utils/conversion.ts: Contain helper functions that
+/utils/parse.ts and /utils/octet.ts: Contain helper functions that enable the other higher level libraries, essentially, adapters for the library.

@@ -1,4 +1,0 @@
-192.168.1.1,FAIL,Expected c0a80101, got -3f57feff
-10.0.0.1,PASS
-172.16.0.1,FAIL,Expected ac100001, got -53efffff
-8.8.8.8,PASS
