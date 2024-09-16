@@ -1,5 +1,5 @@
 /**
- * @file src/ipv4/core/constants.ts
+ * @file src/ipv4/constants.ts
  * @description This module stores shared constants used across the IPv4 operations.
  */
 
@@ -39,3 +39,6 @@ export const IPV4_MAX_ADDRESS: IPv4Bitflag = 0xFFFFFFFF as IPv4Bitflag;
  * Bitflag representation of the minimum IPv4 address (0.0.0.0).
  */
 export const IPV4_MIN_ADDRESS: IPv4Bitflag = 0x00000000 as IPv4Bitflag;
+
+
+export const VALID_IPV4_CHARS = 0x03FF4000; // Bitmask for valid IPv4 characters (0-9 and .)

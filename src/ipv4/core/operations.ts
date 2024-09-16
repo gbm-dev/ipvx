@@ -9,17 +9,16 @@ import {
   bitflagToOctets,
   extractOctet,
   setOctet,
-  countSetBits,
-  generateBitmask,
-} from '@src/ipv4/core/base';
+  getOctetFromIP,
+} from '@src/ipv4/util/octet';
 
 /**
  * Custom error class for IPv4 arithmetic operations.
  */
-class IPv4ArithmeticError extends Error {
+class IPv4OperationError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'IPv4ArithmeticError';
+    this.name = 'IPv4OperationError';
   }
 }
 
@@ -34,7 +33,7 @@ class IPv4ArithmeticError extends Error {
  * Time complexity: O(1) - Fixed number of operations.
  * Space complexity: O(1) - Uses constant extra space.
  */
-function ipToBitflag(ip: IPv4Address): IPv4Bitflag {
+export function ipToBitflag(ip: IPv4Address): IPv4Bitflag {
   const octets = ip.split('.').map(Number);
   return octetsToBitflag(octets as [number, number, number, number]);
 }
@@ -50,7 +49,7 @@ function ipToBitflag(ip: IPv4Address): IPv4Bitflag {
  * Time complexity: O(1) - Fixed number of operations.
  * Space complexity: O(1) - Uses constant extra space.
  */
-function bitflagToIP(bitflag: IPv4Bitflag): IPv4Address {
+export function bitflagToIP(bitflag: IPv4Bitflag): IPv4Address {
   const octets = bitflagToOctets(bitflag);
   return octets.join('.') as IPv4Address;
 }
@@ -62,7 +61,7 @@ function bitflagToIP(bitflag: IPv4Bitflag): IPv4Address {
  * @param {IPv4Address} ip - The IPv4 address to increment.
  * @param {number} [amount=1] - The amount to increment by (default: 1).
  * @returns {IPv4Address} The incremented IPv4 address.
- * @throws {IPv4ArithmeticError} If the operation would result in an invalid IPv4 address.
+ * @throws {IPv4OperationError} If the operation would result in an invalid IPv4 address.
  *
  * @complexity
  * Time complexity: O(1) - Fixed number of operations.
@@ -72,7 +71,7 @@ export function incrementIP(ip: IPv4Address, amount: number = 1): IPv4Address {
   const bitflag = ipToBitflag(ip);
   const result = (bitflag + amount) >>> 0;
   if (result > 0xFFFFFFFF) {
-    throw new IPv4ArithmeticError('Increment operation results in an invalid IPv4 address');
+    throw new IPv4OperationError('Increment operation results in an invalid IPv4 address');
   }
   return bitflagToIP(result as IPv4Bitflag);
 }
@@ -84,7 +83,7 @@ export function incrementIP(ip: IPv4Address, amount: number = 1): IPv4Address {
  * @param {IPv4Address} ip - The IPv4 address to decrement.
  * @param {number} [amount=1] - The amount to decrement by (default: 1).
  * @returns {IPv4Address} The decremented IPv4 address.
- * @throws {IPv4ArithmeticError} If the operation would result in an invalid IPv4 address.
+ * @throws {IPv4OperationError} If the operation would result in an invalid IPv4 address.
  *
  * @complexity
  * Time complexity: O(1) - Fixed number of operations.
@@ -94,7 +93,7 @@ export function decrementIP(ip: IPv4Address, amount: number = 1): IPv4Address {
   const bitflag = ipToBitflag(ip);
   const result = (bitflag - amount) >>> 0;
   if (bitflag < amount) {
-    throw new IPv4ArithmeticError('Decrement operation results in an invalid IPv4 address');
+    throw new IPv4OperationError('Decrement operation results in an invalid IPv4 address');
   }
   return bitflagToIP(result as IPv4Bitflag);
 }
@@ -186,7 +185,7 @@ export function compareIPs(ip1: IPv4Address, ip2: IPv4Address): -1 | 0 | 1 {
    *
    * @param {IPv4Address} ip - The IPv4 address.
    * @returns {IPv4Address} The default subnet mask for the given IP's class.
-   * @throws {IPv4ArithmeticError} If the IP does not belong to a classful network (A, B, or C).
+   * @throws {IPv4OperationError} If the IP does not belong to a classful network (A, B, or C).
    *
    * @complexity
    * Time complexity: O(1) - Fixed number of operations.
@@ -203,6 +202,6 @@ export function compareIPs(ip1: IPv4Address, ip2: IPv4Address): -1 | 0 | 1 {
       case 'C':
         return '255.255.255.0' as IPv4Address;
       default:
-        throw new IPv4ArithmeticError('No default subnet mask for this IP class');
+        throw new IPv4OperationError('No default subnet mask for this IP class');
     }
   }

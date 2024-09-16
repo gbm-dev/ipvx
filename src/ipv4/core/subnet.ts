@@ -1,3 +1,9 @@
+import type { IPv4Address, IPv4Bitflag } from "@src/types";
+import { bitflagToIP, ipToBitflag } from "./operations";
+import { countSetBits } from "../lib/bitwise/basic";
+import { generateBitmask } from "../lib/bitwise/bitmask";
+import { IPv4OperationError } from "@src/ipv4/errors";
+
 /**
  * @function getNetworkAddress
  * @description Calculates the network address for a given IP and subnet mask.
@@ -96,7 +102,7 @@ export function getNetworkAddress(ip: IPv4Address, subnetMask: IPv4Address): IPv
    *
    * @param {number} cidr - The CIDR notation (0-32).
    * @returns {IPv4Address} The subnet mask as an IPv4 address.
-   * @throws {IPv4ArithmeticError} If the CIDR notation is invalid.
+   * @throws {IPv4OperationError} If the CIDR notation is invalid.
    *
    * @complexity
    * Time complexity: O(1) - Fixed number of operations.
@@ -104,7 +110,7 @@ export function getNetworkAddress(ip: IPv4Address, subnetMask: IPv4Address): IPv
    */
   export function cidrToSubnetMask(cidr: number): IPv4Address {
     if (cidr < 0 || cidr > 32) {
-      throw new IPv4ArithmeticError('Invalid CIDR notation');
+      throw new IPv4OperationError('Invalid CIDR notation');
     }
     const maskBitflag = generateBitmask(cidr) << (32 - cidr);
     return bitflagToIP(maskBitflag as IPv4Bitflag);
@@ -116,7 +122,7 @@ export function getNetworkAddress(ip: IPv4Address, subnetMask: IPv4Address): IPv
    *
    * @param {IPv4Address} subnetMask - The subnet mask.
    * @returns {number} The CIDR notation (0-32).
-   * @throws {IPv4ArithmeticError} If the subnet mask is invalid.
+   * @throws {IPv4OperationError} If the subnet mask is invalid.
    *
    * @complexity
    * Time complexity: O(1) - Fixed number of operations.
@@ -126,7 +132,7 @@ export function getNetworkAddress(ip: IPv4Address, subnetMask: IPv4Address): IPv
     const maskBitflag = ipToBitflag(subnetMask);
     const cidr = countSetBits(maskBitflag);
     if ((maskBitflag >>> 0) !== (generateBitmask(cidr) << (32 - cidr))) {
-      throw new IPv4ArithmeticError('Invalid subnet mask');
+      throw new IPv4OperationError('Invalid subnet mask');
     }
     return cidr;
   }
@@ -138,7 +144,7 @@ export function getNetworkAddress(ip: IPv4Address, subnetMask: IPv4Address): IPv
    * @param {IPv4Address} currentSubnet - The current subnet's network address.
    * @param {IPv4Address} subnetMask - The subnet mask.
    * @returns {IPv4Address} The next subnet's network address.
-   * @throws {IPv4ArithmeticError} If there is no next subnet (reached the end of address space).
+   * @throws {IPv4OperationError} If there is no next subnet (reached the end of address space).
    *
    * @complexity
    * Time complexity: O(1) - Fixed number of operations.
@@ -151,7 +157,7 @@ export function getNetworkAddress(ip: IPv4Address, subnetMask: IPv4Address): IPv
     const nextSubnetBitflag = (subnetBitflag + subnetSize) >>> 0;
     
     if (nextSubnetBitflag > 0xFFFFFFFF) {
-      throw new IPv4ArithmeticError('No next subnet available');
+      throw new IPv4OperationError('No next subnet available');
     }
     
     return bitflagToIP(nextSubnetBitflag as IPv4Bitflag);
@@ -164,7 +170,7 @@ export function getNetworkAddress(ip: IPv4Address, subnetMask: IPv4Address): IPv
    * @param {IPv4Address} currentSubnet - The current subnet's network address.
    * @param {IPv4Address} subnetMask - The subnet mask.
    * @returns {IPv4Address} The previous subnet's network address.
-   * @throws {IPv4ArithmeticError} If there is no previous subnet (reached the beginning of address space).
+   * @throws {IPv4OperationError} If there is no previous subnet (reached the beginning of address space).
    *
    * @complexity
    * Time complexity: O(1) - Fixed number of operations.
@@ -176,7 +182,7 @@ export function getNetworkAddress(ip: IPv4Address, subnetMask: IPv4Address): IPv
       const subnetSize = (~maskBitflag >>> 0) + 1;
       
       if (subnetBitflag < subnetSize) {
-        throw new IPv4ArithmeticError('No previous subnet available');
+        throw new IPv4OperationError('No previous subnet available');
       }
       
       const prevSubnetBitflag = (subnetBitflag - subnetSize) >>> 0;

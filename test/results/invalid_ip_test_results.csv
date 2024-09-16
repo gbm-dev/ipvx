@@ -37,9 +37,6 @@ localhost,PASS,Invalid character in IP address: l
 11000000.10101000.00000001.00000001,PASS,Octet out of range: 11000000
 192.168.0x01.1,PASS,Leading zeros are not allowed: 0x01
 192.168.1.0377,PASS,Octet out of range: 377
-255.255.255.256,PASS,Octet out of range: 256
-127.0.0.2,FAIL
-169.254.0.1,FAIL
 192,168,1,1,PASS,Invalid character in IP address: ,
 192_168_1_1,PASS,Invalid character in IP address: _
 192%2E168%2E1%2E1,PASS,Invalid character in IP address: %

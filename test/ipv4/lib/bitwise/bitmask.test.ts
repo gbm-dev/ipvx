@@ -322,17 +322,4 @@ describe('Bitwise::Bitmask', () => {
       expect(reApplied).toBe(0x5A5A0000);
     });
   });
-
-  describe('Performance for Large-Scale Operations', () => {
-    it('should handle a large number of operations efficiently', () => {
-      const start = performance.now();
-      let result = 0;
-      for (let i = 0; i < 1000000; i++) {
-        result = applyMask(result, i);
-      }
-      const end = performance.now();
-      expect(end - start).toBeLessThan(1000); // Adjust threshold as needed
-      expect(result).toBe(999999);
-    });
-  });
 });

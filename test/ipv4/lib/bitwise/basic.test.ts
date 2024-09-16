@@ -486,5 +486,4 @@ describe('Bitwise::Basic', () => {
       expect(max(5, 5)).toBe(5);
     });
   });
-
 });

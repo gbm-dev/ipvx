@@ -4,6 +4,8 @@
  */
 
 import type { IPv4Address, IPv4Bitflag } from '@src/types';
+import { extractBits } from '@src/ipv4/lib/bitwise/bitmask';
+import { ipToBitflag } from '../core/operations';
 
 /**
  * @function extractOctet
@@ -221,3 +223,7 @@ export function setOctetInIP(ip: IPv4Address, octetPosition: number, value: numb
     
     return bitflagToIP(ipBitflag);
   }
+
+function bitflagToIP(ipBitflag: any): IPv4Address {
+  throw new Error('Function not implemented.');
+}

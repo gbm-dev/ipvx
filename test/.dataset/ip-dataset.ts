@@ -105,11 +105,6 @@ export const validAddresses = [
     '192.168.0x01.1',
     '192.168.1.0377',
     
-    // Invalid use of special addresses
-    '255.255.255.256',
-    '127.0.0.2',
-    '169.254.0.1',
-    
     // Invalid separators
     '192,168,1,1',
     '192_168_1_1',

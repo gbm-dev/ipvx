@@ -9,6 +9,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "test": "^3.3.0",
     "types": "^0.1.1"
   }
 }

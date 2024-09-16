@@ -1,5 +1,5 @@
 /**
- * @file src/ipv4/core/errors.ts
+ * @file src/ipv4/errors.ts
  * @description This module defines custom error classes for IPv4 operations.
  */
 
