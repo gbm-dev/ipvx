@@ -4,6 +4,7 @@
  */
 
 import type { IPv4Bitflag } from '@src/types';
+import { parseIPv4 } from '@src/ipv4/utils/parse';
 import { extractBits, generateBitmask, applyMask } from '@src/ipv4/lib/bitwise/bitmask';
 import { IPV4_MAX_ADDRESS } from '../constants';
 
@@ -29,18 +30,37 @@ export function getIPClass(ip: IPv4Bitflag): string {
  * @param ip - The IPv4 address to check.
  * @returns True if the IP is in a private range, false otherwise.
  */
+/**
+ * Checks if an IPv4 address is in a private range.
+ * 
+ * @param ip - The IPv4 address to check.
+ * @returns True if the IP is in a private range, false otherwise.
+ */
+/**
+ * Checks if an IPv4 address is in a private range.
+ * 
+ * @param ip - The IPv4 address to check.
+ * @returns True if the IP is in a private range, false otherwise.
+ */
 export function isPrivateIP(ip: IPv4Bitflag): boolean {
-    // 10.0.0.0 to 10.255.255.255
-    const classA = applyMask(ip, generateBitmask(8)) === (10 << 24);
+    // Class A: 10.0.0.0 to 10.255.255.255
+    if (applyMask(ip, parseIPv4('255.0.0.0') as IPv4Bitflag) === parseIPv4('10.0.0.0') as IPv4Bitflag) {
+        return true;
+    }
 
-    // 172.16.0.0 to 172.31.255.255
-    const classB = applyMask(ip, generateBitmask(12)) === (172 << 24 | 16 << 16);
+    // Class B: 172.16.0.0 to 172.31.255.255
+    if (ip >= parseIPv4('172.16.0.0') as unknown as IPv4Bitflag && ip <= parseIPv4('172.31.255.255') as unknown as IPv4Bitflag) {
+        return true;
+    }
 
-    // 192.168.0.0 to 192.168.255.255
-    const classC = applyMask(ip, generateBitmask(16)) === (192 << 24 | 168 << 16);
+    // Class C: 192.168.0.0 to 192.168.255.255
+    if (applyMask(ip, parseIPv4('255.255.0.0') as IPv4Bitflag) === parseIPv4('192.168.0.0') as IPv4Bitflag) {
+        return true;
+    }
 
-    return classA || classB || classC;
+    return false;
 }
+
 
 /**
  * Checks if an IPv4 address is a loopback address.

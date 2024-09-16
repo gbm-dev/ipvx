@@ -5,7 +5,7 @@
 
 import { expect, describe, it } from 'bun:test';
 import { parseIPv4, formatIPv4, isValidChar } from '@src/ipv4/util/parse';
-import { validAddresses, invalidAddresses } from '@test/.dataset/ip-dataset';
+import { validAddresses, invalidAddresses } from '@src/ipv4/__tests__/ipv4-dataset';
 import type { IPv4Address, IPv4Bitflag } from '@src/types';
 import fs from 'fs';
 
