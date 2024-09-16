@@ -28,7 +28,7 @@ export function generateBitmask(numBits: number): number {
     if (numBits < 0 || numBits > 32) {
         throw new Error('Invalid number of bits. Must be between 0 and 32 inclusive.');
     }
-    return numBits === 0 ? 0 : (MAX_32BIT_VALUE << (32 - numBits)) >>> 0;
+    return numBits === 0 ? 0 : ((MAX_32BIT_VALUE << (32 - numBits)) >>> 0);
 }
 
 /**
@@ -69,30 +69,43 @@ export function invertMask(mask: number): number {
 }
 
 /**
- * @function extractBits
- * @description Extracts a range of bits from a 32-bit unsigned integer.
- *
- * @param {number} n - The 32-bit unsigned integer to extract bits from.
- * @param {number} start - The starting bit position (inclusive, 0-31).
- * @param {number} end - The ending bit position (inclusive, 0-31).
- * @returns {number} The extracted bits as a 32-bit unsigned integer.
- *
- * @throws {Error} If start or end positions are invalid (out of range or start > end).
- *
- * @example
- * extractBits(0xC0A80105, 16, 23); // Returns 0x01
- *
- * @complexity
- * Time complexity: O(1) - The function performs a fixed number of bitwise operations.
- * Space complexity: O(1) - The function uses a constant amount of space.
+ * Extracts a range of bits from a 32-bit integer.
+ * 
+ * @param {number} n - The 32-bit integer to extract bits from.
+ * @param {number} start - The starting bit position (0-31, inclusive).
+ * @param {number} end - The ending bit position (0-31, inclusive).
+ * @returns {number} The extracted bits as an unsigned 32-bit integer.
+ * 
+ * @throws {Error} If start or end are out of range, or if start > end.
+ */
+/**
+ * Extracts a range of bits from a 32-bit integer, handling both positive and negative numbers correctly.
+ * 
+ * @param {number} n - The 32-bit integer to extract bits from.
+ * @param {number} start - The starting bit position (0-31, inclusive).
+ * @param {number} end - The ending bit position (0-31, inclusive).
+ * @returns {number} The extracted bits as an unsigned 32-bit integer.
+ * 
+ * @throws {Error} If start or end are out of range, or if start > end.
  */
 export function extractBits(n: number, start: number, end: number): number {
     if (start < 0 || end > 31 || start > end) {
         throw new Error('Invalid bit range. Start and end positions must be between 0 and 31 inclusive, and start <= end.');
     }
     
+    // Ensure n is treated as an unsigned 32-bit integer
+    n = n >>> 0;
+    
+    // For full 32-bit extraction, return n directly
+    if (start === 0 && end === 31) {
+        return n;
+    }
+    
+    // Create a mask for the desired bits
     const mask = ((1 << (end - start + 1)) - 1) << start;
-    return (n & mask) >>> start;
+    
+    // Extract the bits and shift right
+    return ((n & mask) >>> start) >>> 0;
 }
 
 /**
@@ -111,30 +124,55 @@ export function extractBits(n: number, start: number, end: number): number {
  * Space complexity: O(1) - The function uses a constant amount of space.
  */
 export function isSubsetMask(subset: number, set: number): boolean {
-    return (subset & set) === subset;
+    return ((subset & set) >>> 0) === (subset >>> 0);
 }
 
 /**
  * @function countLeadingOnes
- * @description Counts the number of leading ones in a 32-bit unsigned integer.
+ * @description Counts the number of leading ones in a 32-bit unsigned integer using a more efficient binary search method.
  *
  * @param {number} n - The 32-bit unsigned integer to analyze.
  * @returns {number} The number of leading ones.
  *
  * @example
  * countLeadingOnes(0xFFFF0000); // Returns 16
+ * countLeadingOnes(0xFFFFFFFF); // Returns 32
  *
  * @complexity
- * Time complexity: O(1) - The function performs a fixed number of bitwise operations.
+ * Time complexity: O(log n) - The function performs a logarithmic number of bitwise operations.
  * Space complexity: O(1) - The function uses a constant amount of space.
  */
 export function countLeadingOnes(n: number): number {
-    n = ~n;
+    // Flip the bits to count leading zeros of the flipped number
+    n = ~n >>> 0;
     let count = 0;
-    while ((n & 0x80000000) === 0 && count < 32) {
-        count++;
-        n <<= 1;
+    
+    // Binary search steps
+    if ((n & 0xFFFF0000) === 0) {
+        count += 16;
+        n <<= 16;
     }
+    if ((n & 0xFF000000) === 0) {
+        count += 8;
+        n <<= 8;
+    }
+    if ((n & 0xF0000000) === 0) {
+        count += 4;
+        n <<= 4;
+    }
+    if ((n & 0xC0000000) === 0) {
+        count += 2;
+        n <<= 2;
+    }
+    if ((n & 0x80000000) === 0) {
+        count += 1;
+    }
+
+    // Special case: Check if all 32 bits are ones
+    if (n === 0) {
+        count = 32;
+    }
+    
     return count;
 }
 
@@ -191,7 +229,7 @@ export function intersectBitmasks(mask1: number, mask2: number): number {
  * Space complexity: O(1) - The function uses a constant amount of space.
  */
 export function isolateRightmostSetBit(n: number): number {
-    return n & (-n);
+    return (n & (-n)) >>> 0;
 }
 
 /**
@@ -215,22 +253,39 @@ export function removeRightmostSetBit(n: number): number {
 /**
  * @function nextLexicographicalMask
  * @description Generates the next lexicographical permutation of a bitmask.
+ *              For 0xFFFFFFFF or 0, it returns 0, indicating no next permutation or a wrap-around.
  *
- * @param {number} mask - The current bitmask.
+ * @param {number} mask - The current bitmask (32-bit unsigned integer).
  * @returns {number} The next lexicographical permutation of the input mask.
+ *                   Returns 0 for 0xFFFFFFFF or 0, indicating no next permutation or wrap-around.
  *
  * @example
  * nextLexicographicalMask(0b0011); // Returns 0b0101
  * nextLexicographicalMask(0b0101); // Returns 0b0110
+ * nextLexicographicalMask(0xFFFFFFFF); // Returns 0
+ * nextLexicographicalMask(0); // Returns 0
  *
  * @complexity
  * Time complexity: O(1) - The function performs a constant number of bitwise operations.
  * Space complexity: O(1) - The function uses a constant amount of space.
+ *
+ * @algorithm
+ * 1. Handle special cases: return 0 for input 0 or 0xFFFFFFFF.
+ * 2. Find the rightmost non-trailing zero.
+ * 3. Add 1 to the bits up to and including this zero.
+ * 4. Clear all bits to the right of the original position.
+ * 5. Add back the correct number of trailing 1s.
  */
 export function nextLexicographicalMask(mask: number): number {
-    const t = (mask | (mask - 1)) + 1;
-    return t | ((((t & -t) / (mask & -mask)) >> 1) - 1);
+    mask = mask >>> 0;
+    if (mask === 0 || mask === 0xFFFFFFFF) return 0;
+    const smallest = mask & -mask;
+    const ripple = mask + smallest;
+    const ones = ((mask ^ ripple) >>> 2) / smallest;
+    const result = ripple | ones;
+    return result >>> 0;
 }
+
 
 /**
  * @function getLowestNBits
@@ -253,7 +308,7 @@ export function getLowestNBits(n: number): number {
     if (n < 0 || n > 32) {
         throw new Error('Invalid number of bits. Must be between 0 and 32 inclusive.');
     }
-    return (1 << n) - 1;
+    return ((1 << n) - 1) >>> 0;
 }
 
 /**

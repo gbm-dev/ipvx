@@ -311,7 +311,13 @@ export function isPowerOfTwo(n: number): boolean {
 }
 
 export function hasAlternatingBits(n: number): boolean {
-    return ((n ^ (n >> 1)) & ((1 << 31) - 1)) === ((1 << 31) - 1);
+    // Perform XOR of n and n shifted right by 1
+    // If n has alternating bits, the result will be a sequence of all 1s
+    let xor = n ^ (n >> 1);
+    
+    // Check if xor is a sequence of all 1s by using the trick (xor & (xor + 1)) == 0
+    // For example, 0b111 (7) + 1 = 0b1000 (8), and 0b111 & 0b1000 = 0
+    return (xor & (xor + 1)) === 0;
 }
 
 export function reverseBits(n: number): number {

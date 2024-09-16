@@ -108,4 +108,21 @@ describe('IPv4::Validation', () => {
       });
     });
   });
+
+  describe('Bitwise::Basic::isValidChar', () => {
+    const VALID_IPV4_CHARS = ['.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  
+    it('should return true for valid IPv4 characters', () => {
+      VALID_IPV4_CHARS.forEach(char => {
+        expect(isValidChar(char.charCodeAt(0), VALID_IPV4_CHARS)).toBe(true);
+      });
+    });
+  
+    it('should return false for invalid characters', () => {
+      expect(isValidChar('A'.charCodeAt(0), VALID_IPV4_CHARS)).toBe(false);
+      expect(isValidChar('!'.charCodeAt(0), VALID_IPV4_CHARS)).toBe(false);
+      expect(isValidChar(' '.charCodeAt(0), VALID_IPV4_CHARS)).toBe(false);
+    });
+  });
+  
 });

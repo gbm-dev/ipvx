@@ -1,4 +1,4 @@
-import { ValidationResult, IPv4Address } from '@src/types';
+import type { ValidationResult, IPv4Address } from '@src/types';
 import { extractBits, generateBitmask, applyMask } from '@src/ipv4/lib/bitwise/bitmask';
 import { countSetFlags, hasFlag } from '@src/ipv4/lib/bitwise/bitflag';
 import { leftShift, rightShift } from '@src/ipv4/lib/bitwise/basic';

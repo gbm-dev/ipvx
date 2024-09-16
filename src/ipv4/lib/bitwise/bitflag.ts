@@ -34,7 +34,7 @@ const DE_BRUIJN_TABLE = new Uint8Array([
  * Space complexity: O(1)
  */
 export function setFlag(flags: number, flagToSet: number): number {
-    return flags | flagToSet;
+    return (flags | flagToSet) >>> 0;
 }
 
 /**
@@ -53,7 +53,7 @@ export function setFlag(flags: number, flagToSet: number): number {
  * Space complexity: O(1)
  */
 export function clearFlag(flags: number, flagToClear: number): number {
-    return flags & ~flagToClear;
+    return (flags & ~flagToClear) >>> 0;
 }
 
 /**
@@ -73,7 +73,7 @@ export function clearFlag(flags: number, flagToClear: number): number {
  * Space complexity: O(1)
  */
 export function toggleFlag(flags: number, flagToToggle: number): number {
-    return flags ^ flagToToggle;
+    return (flags ^ flagToToggle) >>> 0;
 }
 
 /**
@@ -82,7 +82,23 @@ export function toggleFlag(flags: number, flagToToggle: number): number {
  * 
  * @param {number} flags - The current set of flags.
  * @param {number} flagToCheck - The flag to check.
- * @returns {boolean} True if the flag is set, false otherwise.
+ * @returns {boolean} True if all specified flags are set, false otherwise.
+ * 
+ * @example
+ * hasFlag(0b1010, 0b0010); // Returns true
+ * hasFlag(0b1010, 0b0100); // Returns false
+ * 
+ * @complexity
+ * Time complexity: O(1)
+ * Space complexity: O(1)
+ */
+/**
+ * @function hasFlag
+ * @description Checks if all specified flags are set in a bitflag set.
+ * 
+ * @param {number} flags - The current set of flags.
+ * @param {number} flagToCheck - The flag(s) to check.
+ * @returns {boolean} True if all specified flags are set, false otherwise.
  * 
  * @example
  * hasFlag(0b1010, 0b0010); // Returns true
@@ -93,7 +109,7 @@ export function toggleFlag(flags: number, flagToToggle: number): number {
  * Space complexity: O(1)
  */
 export function hasFlag(flags: number, flagToCheck: number): boolean {
-    return (flags & flagToCheck) === flagToCheck;
+    return (((flags >>> 0) & (flagToCheck >>> 0)) >>> 0) === (flagToCheck >>> 0);
 }
 
 /**
@@ -101,41 +117,46 @@ export function hasFlag(flags: number, flagToCheck: number): boolean {
  * @description Combines multiple flags into a single bitflag set.
  * 
  * @param {...number} flags - The flags to combine.
- * @returns {number} The combined set of flags.
+ * @returns {number} The combined set of flags as an unsigned 32-bit integer.
  * 
  * @example
  * combineFlags(0b0001, 0b0010, 0b0100); // Returns 0b0111
+ * combineFlags(0xFFFFFFFF, 0x00000001); // Returns 0xFFFFFFFF (4294967295 in decimal)
  * 
  * @complexity
  * Time complexity: O(n), where n is the number of flags to combine
  * Space complexity: O(1)
  */
 export function combineFlags(...flags: number[]): number {
-    return flags.reduce((acc, flag) => acc | flag, 0);
+    return flags.reduce((acc, flag) => (acc | flag) >>> 0, 0);
 }
 
 /**
  * @function extractFlags
- * @description Extracts all set flags from a bitflag set.
+ * @description Extracts all set flags from a 32-bit unsigned integer bitflag set.
+ * Optimized for sparse flag sets commonly used in IPv4 networking functions.
  * 
- * @param {number} flags - The set of flags to extract from.
+ * @param {number} flags - The set of flags to extract from (32-bit unsigned integer).
  * @returns {number[]} An array of individual set flags.
  * 
  * @example
- * extractFlags(0b1010); // Returns [0b0010, 0b1000]
+ * extractFlags(0b1010); // Returns [2, 8]
+ * extractFlags(0x0A000002); // Returns [2, 33554432]
  * 
  * @complexity
- * Time complexity: O(1) - Uses a constant number of operations regardless of input
- * Space complexity: O(1) - Uses a fixed-size array for output
+ * Time complexity: O(1) - Performs at most 32 iterations for a 32-bit integer.
+ * Space complexity: O(1) - Output array has a maximum size of 32 for a 32-bit integer.
  */
 export function extractFlags(flags: number): number[] {
     const result: number[] = [];
-    let i = 0;
+    flags = flags >>> 0; // Ensure it's a 32-bit unsigned integer
+
     while (flags) {
-        if (flags & 1) result.push(1 << i);
-        flags >>= 1;
-        i++;
+        const lowestSetBit = flags & -flags;
+        result.push(lowestSetBit);
+        flags ^= lowestSetBit; // Remove the lowest set bit from flags using XOR
     }
+
     return result;
 }
 
@@ -175,8 +196,9 @@ export function countSetFlags(flags: number): number {
  * Space complexity: O(1)
  */
 export function firstSetFlag(flags: number): number {
-    return flags & -flags;
+    return (flags & -flags) >>> 0;
 }
+
 
 /**
  * @function lastSetFlag
@@ -194,13 +216,18 @@ export function firstSetFlag(flags: number): number {
  */
 export function lastSetFlag(flags: number): number {
     if (flags === 0) return 0;
+    // Set all bits below the most significant bit
     flags |= flags >> 1;
     flags |= flags >> 2;
     flags |= flags >> 4;
     flags |= flags >> 8;
     flags |= flags >> 16;
-    return 1 << DE_BRUIJN_TABLE[(flags * DE_BRUIJN_SEQUENCE) >>> 27];
+    // Isolate the most significant bit
+    flags ^= flags >> 1;
+    // Use de Bruijn sequence to find the position of the most significant bit
+    return 1 << DE_BRUIJN_TABLE[(flags * DE_BRUIJN_SEQUENCE) >>> 27 & 0x1F];
 }
+
 
 /**
  * @function nextSetFlag
@@ -274,5 +301,5 @@ export function setAllFlags(flags: number): number {
  * Space complexity: O(1)
  */
 export function invertFlags(flags: number): number {
-    return ~flags;
+    return ~flags >>> 0;
 }
