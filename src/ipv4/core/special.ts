@@ -6,6 +6,56 @@
 
 import type { IPv4Address } from '@src/types';
 import { isIPInRange } from '@src/ipv4/core/operation';
+import { assertIPv4Address } from '@src/ipv4/util/helper';
+import { parseIPv4 as ipToBitflag } from '@src/ipv4/util/parse';
+
+/**
+ * Predefined IP ranges for various special-use categories.
+ * These are validated and converted to IPv4Address types using factory functions.
+ */
+const PRIVATE_RANGES: [IPv4Address, IPv4Address][] = [
+  [assertIPv4Address('10.0.0.0'), assertIPv4Address('10.255.255.255')],
+  [assertIPv4Address('172.16.0.0'), assertIPv4Address('172.31.255.255')],
+  [assertIPv4Address('192.168.0.0'), assertIPv4Address('192.168.255.255')],
+];
+
+const LOOPBACK_RANGE: [IPv4Address, IPv4Address] = [
+  assertIPv4Address('127.0.0.0'),
+  assertIPv4Address('127.255.255.255'),
+];
+
+const LINK_LOCAL_RANGE: [IPv4Address, IPv4Address] = [
+  assertIPv4Address('169.254.0.0'),
+  assertIPv4Address('169.254.255.255'),
+];
+
+const MULTICAST_RANGE: [IPv4Address, IPv4Address] = [
+  assertIPv4Address('224.0.0.0'),
+  assertIPv4Address('239.255.255.255'),
+];
+
+const BROADCAST_IP: IPv4Address = assertIPv4Address('255.255.255.255');
+
+const DOCUMENTATION_RANGES: [IPv4Address, IPv4Address][] = [
+  [assertIPv4Address('192.0.2.0'), assertIPv4Address('192.0.2.255')], // TEST-NET-1
+  [assertIPv4Address('198.51.100.0'), assertIPv4Address('198.51.100.255')], // TEST-NET-2
+  [assertIPv4Address('203.0.113.0'), assertIPv4Address('203.0.113.255')], // TEST-NET-3
+];
+
+const BENCHMARKING_RANGE: [IPv4Address, IPv4Address] = [
+  assertIPv4Address('198.18.0.0'),
+  assertIPv4Address('198.19.255.255'),
+];
+
+const SHARED_ADDRESS_SPACE_RANGE: [IPv4Address, IPv4Address] = [
+  assertIPv4Address('100.64.0.0'),
+  assertIPv4Address('100.127.255.255'),
+];
+
+const RESERVED_RANGES: [IPv4Address, IPv4Address][] = [
+  [assertIPv4Address('0.0.0.0'), assertIPv4Address('0.255.255.255')],
+  [assertIPv4Address('240.0.0.0'), assertIPv4Address('255.255.255.254')],
+];
 
 /**
  * @function isPrivateIP
@@ -19,9 +69,7 @@ import { isIPInRange } from '@src/ipv4/core/operation';
  * Space complexity: O(1) - Uses constant extra space.
  */
 export function isPrivateIP(ip: IPv4Address): boolean {
-  return isIPInRange(ip, '10.0.0.0', '10.255.255.255') ||
-         isIPInRange(ip, '172.16.0.0', '172.31.255.255') ||
-         isIPInRange(ip, '192.168.0.0', '192.168.255.255');
+  return PRIVATE_RANGES.some(([start, end]) => isIPInRange(ip, start, end));
 }
 
 /**
@@ -36,7 +84,7 @@ export function isPrivateIP(ip: IPv4Address): boolean {
  * Space complexity: O(1) - Uses constant extra space.
  */
 export function isLoopbackIP(ip: IPv4Address): boolean {
-  return isIPInRange(ip, '127.0.0.0', '127.255.255.255');
+  return isIPInRange(ip, LOOPBACK_RANGE[0], LOOPBACK_RANGE[1]);
 }
 
 /**
@@ -51,7 +99,7 @@ export function isLoopbackIP(ip: IPv4Address): boolean {
  * Space complexity: O(1) - Uses constant extra space.
  */
 export function isLinkLocalIP(ip: IPv4Address): boolean {
-  return isIPInRange(ip, '169.254.0.0', '169.254.255.255');
+  return isIPInRange(ip, LINK_LOCAL_RANGE[0], LINK_LOCAL_RANGE[1]);
 }
 
 /**
@@ -66,7 +114,7 @@ export function isLinkLocalIP(ip: IPv4Address): boolean {
  * Space complexity: O(1) - Uses constant extra space.
  */
 export function isMulticastIP(ip: IPv4Address): boolean {
-  return isIPInRange(ip, '224.0.0.0', '239.255.255.255');
+  return isIPInRange(ip, MULTICAST_RANGE[0], MULTICAST_RANGE[1]);
 }
 
 /**
@@ -81,25 +129,7 @@ export function isMulticastIP(ip: IPv4Address): boolean {
  * Space complexity: O(1) - Uses constant extra space.
  */
 export function isBroadcastIP(ip: IPv4Address): boolean {
-  return ip === '255.255.255.255';
-}
-
-/**
- * @function isReservedIP
- * @description Checks if an IPv4 address is in a reserved range.
- *
- * @param {IPv4Address} ip - The IPv4 address to check.
- * @returns {boolean} True if the IP is in a reserved range, false otherwise.
- *
- * @complexity
- * Time complexity: O(1) - Fixed number of range checks.
- * Space complexity: O(1) - Uses constant extra space.
- */
-export function isReservedIP(ip: IPv4Address): boolean {
-  return isIPInRange(ip, '240.0.0.0', '255.255.255.254') || // Future use
-         isIPInRange(ip, '198.51.100.0', '198.51.100.255') || // TEST-NET-2
-         isIPInRange(ip, '203.0.113.0', '203.0.113.255') || // TEST-NET-3
-         ip === '192.0.2.0' || ip === '192.0.2.255'; // TEST-NET-1
+  return ip === BROADCAST_IP;
 }
 
 /**
@@ -114,9 +144,7 @@ export function isReservedIP(ip: IPv4Address): boolean {
  * Space complexity: O(1) - Uses constant extra space.
  */
 export function isDocumentationIP(ip: IPv4Address): boolean {
-  return isIPInRange(ip, '192.0.2.0', '192.0.2.255') || // TEST-NET-1
-         isIPInRange(ip, '198.51.100.0', '198.51.100.255') || // TEST-NET-2
-         isIPInRange(ip, '203.0.113.0', '203.0.113.255'); // TEST-NET-3
+  return DOCUMENTATION_RANGES.some(([start, end]) => isIPInRange(ip, start, end));
 }
 
 /**
@@ -131,7 +159,7 @@ export function isDocumentationIP(ip: IPv4Address): boolean {
  * Space complexity: O(1) - Uses constant extra space.
  */
 export function isBenchmarkingIP(ip: IPv4Address): boolean {
-  return isIPInRange(ip, '198.18.0.0', '198.19.255.255');
+  return isIPInRange(ip, BENCHMARKING_RANGE[0], BENCHMARKING_RANGE[1]);
 }
 
 /**
@@ -146,7 +174,22 @@ export function isBenchmarkingIP(ip: IPv4Address): boolean {
  * Space complexity: O(1) - Uses constant extra space.
  */
 export function isSharedAddressSpaceIP(ip: IPv4Address): boolean {
-  return isIPInRange(ip, '100.64.0.0', '100.127.255.255');
+  return isIPInRange(ip, SHARED_ADDRESS_SPACE_RANGE[0], SHARED_ADDRESS_SPACE_RANGE[1]);
+}
+
+/**
+ * @function isReservedIP
+ * @description Checks if an IPv4 address is in a reserved range.
+ *
+ * @param {IPv4Address} ip - The IPv4 address to check.
+ * @returns {boolean} True if the IP is in a reserved range, false otherwise.
+ *
+ * @complexity
+ * Time complexity: O(1) - Fixed number of range checks.
+ * Space complexity: O(1) - Uses constant extra space.
+ */
+export function isReservedIP(ip: IPv4Address): boolean {
+  return RESERVED_RANGES.some(([start, end]) => isIPInRange(ip, start, end));
 }
 
 /**
@@ -166,10 +209,10 @@ export function getSpecialIPType(ip: IPv4Address): string {
   if (isLinkLocalIP(ip)) return 'Link-local';
   if (isMulticastIP(ip)) return 'Multicast';
   if (isBroadcastIP(ip)) return 'Broadcast';
-  if (isReservedIP(ip)) return 'Reserved';
-  if (isDocumentationIP(ip)) return 'Documentation';
   if (isBenchmarkingIP(ip)) return 'Benchmarking';
   if (isSharedAddressSpaceIP(ip)) return 'Shared Address Space';
+  if (isDocumentationIP(ip)) return 'Documentation';
+  if (isReservedIP(ip)) return 'Reserved';
   return 'Public';
 }
 
@@ -200,28 +243,18 @@ export function isGlobalUnicastIP(ip: IPv4Address): boolean {
  * Space complexity: O(1) - Uses constant extra space.
  */
 export function getSpecialIPRange(type: string): [IPv4Address, IPv4Address][] | null {
+  const normalizedType = type.toLowerCase();
   const ranges: { [key: string]: [IPv4Address, IPv4Address][] } = {
-    'Private': [
-      ['10.0.0.0', '10.255.255.255'],
-      ['172.16.0.0', '172.31.255.255'],
-      ['192.168.0.0', '192.168.255.255']
-    ],
-    'Loopback': [['127.0.0.0', '127.255.255.255']],
-    'Link-local': [['169.254.0.0', '169.254.255.255']],
-    'Multicast': [['224.0.0.0', '239.255.255.255']],
-    'Reserved': [
-      ['240.0.0.0', '255.255.255.254'],
-      ['198.51.100.0', '198.51.100.255'],
-      ['203.0.113.0', '203.0.113.255']
-    ],
-    'Documentation': [
-      ['192.0.2.0', '192.0.2.255'],
-      ['198.51.100.0', '198.51.100.255'],
-      ['203.0.113.0', '203.0.113.255']
-    ],
-    'Benchmarking': [['198.18.0.0', '198.19.255.255']],
-    'Shared Address Space': [['100.64.0.0', '100.127.255.255']]
+    'private': PRIVATE_RANGES,
+    'loopback': [LOOPBACK_RANGE],
+    'link-local': [LINK_LOCAL_RANGE],
+    'multicast': [MULTICAST_RANGE],
+    'broadcast': [[BROADCAST_IP, BROADCAST_IP]],
+    'reserved': RESERVED_RANGES,
+    'documentation': DOCUMENTATION_RANGES,
+    'benchmarking': [BENCHMARKING_RANGE],
+    'shared address space': [SHARED_ADDRESS_SPACE_RANGE],
   };
 
-  return ranges[type] || null;
+  return ranges[normalizedType] || null;
 }

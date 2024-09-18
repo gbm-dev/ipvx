@@ -22,12 +22,18 @@ import { IPV4_MAX_ADDRESS } from '@src/ipv4/constants';
  */
 export function assertIPv4Address(address: string): IPv4Address {
     const trimmedAddress = address.trim();
+
+    // Check for leading or trailing whitespace
+    if (trimmedAddress !== address) {
+        throw new Error(`Invalid IPv4 address: '${address}' - Leading or trailing whitespace not allowed.`);
+    }
+
     const validationResult = validateIPv4(trimmedAddress);
     if (!validationResult.isValid) {
       throw new Error(`Invalid IPv4 address: ${validationResult.reason}`);
     }
     return (validationResult.cleanedIP || trimmedAddress) as IPv4Address;
-  }
+}
 
 /**
  * @function assertIPv4Bitflag
