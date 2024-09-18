@@ -1,17 +1,17 @@
 // src/ipv4/util/__tests__/helpers.test.ts
 
 import {
-    createIPv4Address,
-    createIPv4Bitflag,
-    ipv4AddressToString,
-    ipv4BitflagToNumber,
-    stringToIPv4Address,
+    assertIPv4Address,
+    assertIPv4Bitflag,
+    convertIPv4AddressToString,
+    convertIPv4BitflagToNumber,
+    convertStringToIPv4Address,
   } from '../helper';
   import type { IPv4Address, IPv4Bitflag } from '@src/types';
   import { expect, describe, it } from 'bun:test';
   
   describe('IPv4 Helper Functions', () => {
-    describe('createIPv4Address', () => {
+    describe('assertIPv4Address', () => {
       it('should create a branded IPv4Address for valid IPs', () => {
         const validIPs = [
           '0.0.0.0',
@@ -23,8 +23,8 @@ import {
         ];
   
         validIPs.forEach((ip) => {
-          const result = createIPv4Address(ip);
-          const resultString = ipv4AddressToString(result);
+          const result = assertIPv4Address(ip);
+          const resultString = convertIPv4AddressToString(result);
           expect(resultString).toBe(ip);
         });
       });
@@ -44,12 +44,24 @@ import {
         ];
   
         invalidIPs.forEach((ip) => {
-          expect(() => createIPv4Address(ip)).toThrowError(/Invalid IPv4 address/);
+          expect(() => assertIPv4Address(ip)).toThrowError(/Invalid IPv4 address/);
         });
+      });
+
+      it('should reject IP addresses with leading zeros', () => {
+        expect(() => assertIPv4Address('192.168.001.001')).toThrowError(/Leading zeros are not allowed/);
+      });
+    
+      it('should trim whitespace from valid IP addresses', () => {
+        expect(convertIPv4AddressToString(assertIPv4Address(' 192.168.1.1 '))).toBe('192.168.1.1');
+      });
+    
+      it('should reject hexadecimal or octal representations', () => {
+        expect(() => assertIPv4Address('0xC0.0xA8.0x01.0x01')).toThrowError(/Invalid IPv4 address/);
       });
     });
   
-    describe('createIPv4Bitflag', () => {
+    describe('assertIPv4Bitflag', () => {
       it('should create a branded IPv4Bitflag for valid flags', () => {
         const validFlags = [
           0x00000000, // 0
@@ -60,8 +72,8 @@ import {
         ];
   
         validFlags.forEach((flag) => {
-          const result = createIPv4Bitflag(flag);
-          const resultNumber = ipv4BitflagToNumber(result)
+          const result = assertIPv4Bitflag(flag);
+          const resultNumber = convertIPv4BitflagToNumber(result)
           expect(resultNumber).toBe(flag);
         });
       });
@@ -79,20 +91,43 @@ import {
         ];
   
         invalidFlags.forEach((flag) => {
-          expect(() => createIPv4Bitflag(flag)).toThrowError(/Invalid IPv4 bitflag/);
+          expect(() => assertIPv4Bitflag(flag)).toThrowError(/Invalid IPv4 bitflag/);
         });
       });
   
       it('should allow 0 and 0xFFFFFFFF as valid flags', () => {
-        expect(createIPv4Bitflag(0)).toBe(0);
-        expect(createIPv4Bitflag(0xFFFFFFFF)).toBe(0xFFFFFFFF);
+        expect(convertIPv4BitflagToNumber(assertIPv4Bitflag(0))).toBe(0);
+        expect(convertIPv4BitflagToNumber(assertIPv4Bitflag(0xFFFFFFFF))).toBe(0xFFFFFFFF);
       });
+
+      it('should accept the maximum valid IPv4 bitflag', () => {
+        expect(convertIPv4BitflagToNumber(assertIPv4Bitflag(0xFFFFFFFF))).toBe(0xFFFFFFFF);
+      });
+    
+      it('should reject values just outside the valid range', () => {
+        expect(() => assertIPv4Bitflag(0xFFFFFFFF + 1)).toThrowError(/Invalid IPv4 bitflag/);
+        expect(() => assertIPv4Bitflag(-1)).toThrowError(/Invalid IPv4 bitflag/);
+      });
+    
+      it('should handle floating-point numbers that appear to be integers', () => {
+        expect(convertIPv4BitflagToNumber(assertIPv4Bitflag(1.0))).toBe(1);
+        expect(() => assertIPv4Bitflag(1.1)).toThrowError(/Invalid IPv4 bitflag/);
+      });
+    
+      it('should reject non-number types', () => {
+        expect(() => assertIPv4Bitflag(undefined as any)).toThrowError(/Invalid IPv4 bitflag/);
+        expect(() => assertIPv4Bitflag(null as any)).toThrowError(/Invalid IPv4 bitflag/);
+        expect(() => assertIPv4Bitflag(true as any)).toThrowError(/Invalid IPv4 bitflag/);
+        expect(() => assertIPv4Bitflag({} as any)).toThrowError(/Invalid IPv4 bitflag/);
+        expect(() => assertIPv4Bitflag([] as any)).toThrowError(/Invalid IPv4 bitflag/);
+      });
+
     });
   
-    describe('ipv4AddressToString', () => {
+    describe('convertIPv4AddressToString', () => {
       it('should convert a branded IPv4Address to a string', () => {
-        const ip = createIPv4Address('192.168.1.1');
-        const result = ipv4AddressToString(ip);
+        const ip = assertIPv4Address('192.168.1.1');
+        const result = convertIPv4AddressToString(ip);
         expect(typeof result).toBe('string');
         expect(result).toBe('192.168.1.1');
       });
@@ -108,14 +143,14 @@ import {
         ];
   
         ipStrings.forEach((ip) => {
-          const ipAddress = createIPv4Address(ip);
-          const result = ipv4AddressToString(ipAddress);
+          const ipAddress = assertIPv4Address(ip);
+          const result = convertIPv4AddressToString(ipAddress);
           expect(result).toBe(ip);
         });
       });
     });
   
-    describe('ipv4BitflagToNumber', () => {
+    describe('convertIPv4BitflagToNumber', () => {
       it('should convert a branded IPv4Bitflag to a number', () => {
         const flags = [
           0x00000000,
@@ -126,15 +161,15 @@ import {
         ];
   
         flags.forEach((flag) => {
-          const bitflag = createIPv4Bitflag(flag);
-          const result = ipv4BitflagToNumber(bitflag);
+          const bitflag = assertIPv4Bitflag(flag);
+          const result = convertIPv4BitflagToNumber(bitflag);
           expect(typeof result).toBe('number');
           expect(result).toBe(flag);
         });
       });
     });
   
-    describe('stringToIPv4Address', () => {
+    describe('convertStringToIPv4Address', () => {
       it('should convert a string to a branded IPv4Address for valid IPs', () => {
         const validIPs = [
           '0.0.0.0',
@@ -146,8 +181,8 @@ import {
         ];
   
         validIPs.forEach((ip) => {
-          const result = stringToIPv4Address(ip);
-          const resultString = ipv4AddressToString(result);
+          const result = convertStringToIPv4Address(ip);
+          const resultString = convertIPv4AddressToString(result);
           expect(resultString).toBe(ip);
         });
       });
@@ -167,7 +202,7 @@ import {
         ];
   
         invalidIPs.forEach((ip) => {
-          expect(() => stringToIPv4Address(ip)).toThrowError(/Invalid IPv4 address/);
+          expect(() => convertStringToIPv4Address(ip)).toThrowError(/Invalid IPv4 address/);
         });
       });
     });

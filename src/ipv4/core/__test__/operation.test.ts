@@ -18,10 +18,10 @@ import {
 import type { IPv4Address, IPv4Bitflag } from '@src/types';
 import { IPv4OperationError } from '@src/ipv4/error';
 import {
-  createIPv4Address,
-  createIPv4Bitflag,
-  ipv4AddressToString,
-  ipv4BitflagToNumber, // Import the new helper function
+  assertIPv4Address,
+  assertIPv4Bitflag,
+  convertIPv4AddressToString,
+  convertIPv4BitflagToNumber, // Import the new helper function
 } from '../../util/helper'; // Corrected import path
 
 describe('IPv4 Operations Utilities', () => {
@@ -36,9 +36,9 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([address, expected]) => {
-        const ip = createIPv4Address(address);
+        const ip = assertIPv4Address(address);
         const result = ipToBitflag(ip);
-        const resultNumber = ipv4BitflagToNumber(result); // Convert to number
+        const resultNumber = convertIPv4BitflagToNumber(result); // Convert to number
         expect(resultNumber).toBe(expected); // Compare numbers
       });
     });
@@ -50,9 +50,9 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([address, expected]) => {
-        const ip = createIPv4Address(address);
+        const ip = assertIPv4Address(address);
         const result = ipToBitflag(ip);
-        const resultNumber = ipv4BitflagToNumber(result); // Convert to number
+        const resultNumber = convertIPv4BitflagToNumber(result); // Convert to number
         expect(resultNumber).toBe(expected); // Compare numbers
       });
     });
@@ -60,7 +60,7 @@ describe('IPv4 Operations Utilities', () => {
     it('should throw an error for invalid IP addresses', () => {
       const invalidIPs = ['256.256.256.256', '192.168.1', 'abc.def.ghi.jkl'];
       invalidIPs.forEach((address) => {
-        expect(() => createIPv4Address(address)).toThrow('Invalid IPv4 address');
+        expect(() => assertIPv4Address(address)).toThrow('Invalid IPv4 address');
       });
     });
   });
@@ -76,9 +76,9 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([flag, expected]) => {
-        const bitflag = createIPv4Bitflag(flag);
+        const bitflag = assertIPv4Bitflag(flag);
         const result = bitflagToIP(bitflag);
-        const resultString = ipv4AddressToString(result); // Convert to string
+        const resultString = convertIPv4AddressToString(result); // Convert to string
         expect(resultString).toBe(expected); // Compare strings
       });
     });
@@ -90,9 +90,9 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([flag, expected]) => {
-        const bitflag = createIPv4Bitflag(flag);
+        const bitflag = assertIPv4Bitflag(flag);
         const result = bitflagToIP(bitflag);
-        const resultString = ipv4AddressToString(result); // Convert to string
+        const resultString = convertIPv4AddressToString(result); // Convert to string
         expect(resultString).toBe(expected); // Compare strings
       });
     });
@@ -100,7 +100,7 @@ describe('IPv4 Operations Utilities', () => {
     it('should throw an error for invalid bitflags', () => {
       const invalidBitflags = [-1, 0x100000000, NaN, Infinity];
       invalidBitflags.forEach((flag) => {
-        expect(() => createIPv4Bitflag(flag)).toThrow('Invalid IPv4 bitflag');
+        expect(() => assertIPv4Bitflag(flag)).toThrow('Invalid IPv4 bitflag');
       });
     });
   });
@@ -115,9 +115,9 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([address, expected]) => {
-        const ip = createIPv4Address(address);
+        const ip = assertIPv4Address(address);
         const result = incrementIP(ip);
-        const resultString = ipv4AddressToString(result); // Convert to string
+        const resultString = convertIPv4AddressToString(result); // Convert to string
         expect(resultString).toBe(expected); // Compare strings
       });
     });
@@ -130,15 +130,15 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([address, amount, expected]) => {
-        const ip = createIPv4Address(address);
+        const ip = assertIPv4Address(address);
         const result = incrementIP(ip, amount);
-        const resultString = ipv4AddressToString(result); // Convert to string
+        const resultString = convertIPv4AddressToString(result); // Convert to string
         expect(resultString).toBe(expected); // Compare strings
       });
     });
 
     it('should throw IPv4OperationError when incrementing beyond 255.255.255.255', () => {
-      const ip = createIPv4Address('255.255.255.255');
+      const ip = assertIPv4Address('255.255.255.255');
       expect(() => incrementIP(ip)).toThrow(
         'Increment operation results in an invalid IPv4 address'
       );
@@ -151,17 +151,17 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([address, amount, expected]) => {
-        const ip = createIPv4Address(address);
+        const ip = assertIPv4Address(address);
         const result = incrementIP(ip, amount);
-        const resultString = ipv4AddressToString(result); // Convert to string
+        const resultString = convertIPv4AddressToString(result); // Convert to string
         expect(resultString).toBe(expected); // Compare strings
       });
     });
 
     it('should handle incrementing by zero correctly', () => {
-      const ip = createIPv4Address('192.168.1.1');
+      const ip = assertIPv4Address('192.168.1.1');
       const result = incrementIP(ip, 0);
-      const resultString = ipv4AddressToString(result); // Convert to string
+      const resultString = convertIPv4AddressToString(result); // Convert to string
       expect(resultString).toBe('192.168.1.1'); // Compare strings
     });
 
@@ -172,15 +172,15 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([address, amount, expected]) => {
-        const ip = createIPv4Address(address);
+        const ip = assertIPv4Address(address);
         const result = incrementIP(ip, amount);
-        const resultString = ipv4AddressToString(result); // Convert to string
+        const resultString = convertIPv4AddressToString(result); // Convert to string
         expect(resultString).toBe(expected); // Compare strings
       });
     });
 
     it('should throw IPv4OperationError when incrementing by a negative amount that causes underflow', () => {
-      const ip = createIPv4Address('0.0.0.0');
+      const ip = assertIPv4Address('0.0.0.0');
       expect(() => incrementIP(ip, -1)).toThrow(
         'Increment operation results in an invalid IPv4 address'
       );
@@ -197,9 +197,9 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([address, expected]) => {
-        const ip = createIPv4Address(address);
+        const ip = assertIPv4Address(address);
         const result = decrementIP(ip);
-        const resultString = ipv4AddressToString(result); // Convert to string
+        const resultString = convertIPv4AddressToString(result); // Convert to string
         expect(resultString).toBe(expected); // Compare strings
       });
     });
@@ -212,15 +212,15 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([address, amount, expected]) => {
-        const ip = createIPv4Address(address);
+        const ip = assertIPv4Address(address);
         const result = decrementIP(ip, amount);
-        const resultString = ipv4AddressToString(result); // Convert to string
+        const resultString = convertIPv4AddressToString(result); // Convert to string
         expect(resultString).toBe(expected); // Compare strings
       });
     });
 
     it('should throw IPv4OperationError when decrementing below 0.0.0.0', () => {
-      const ip = createIPv4Address('0.0.0.0');
+      const ip = assertIPv4Address('0.0.0.0');
       expect(() => decrementIP(ip)).toThrow(
         'Decrement operation results in an invalid IPv4 address'
       );
@@ -233,17 +233,17 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([address, amount, expected]) => {
-        const ip = createIPv4Address(address);
+        const ip = assertIPv4Address(address);
         const result = decrementIP(ip, amount);
-        const resultString = ipv4AddressToString(result); // Convert to string
+        const resultString = convertIPv4AddressToString(result); // Convert to string
         expect(resultString).toBe(expected); // Compare strings
       });
     });
 
     it('should handle decrementing by zero correctly', () => {
-      const ip = createIPv4Address('192.168.1.1');
+      const ip = assertIPv4Address('192.168.1.1');
       const result = decrementIP(ip, 0);
-      const resultString = ipv4AddressToString(result); // Convert to string
+      const resultString = convertIPv4AddressToString(result); // Convert to string
       expect(resultString).toBe('192.168.1.1'); // Compare strings
     });
 
@@ -254,15 +254,15 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([address, amount, expected]) => {
-        const ip = createIPv4Address(address);
+        const ip = assertIPv4Address(address);
         const result = decrementIP(ip, amount);
-        const resultString = ipv4AddressToString(result); // Convert to string
+        const resultString = convertIPv4AddressToString(result); // Convert to string
         expect(resultString).toBe(expected); // Compare strings
       });
     });
 
     it('should throw IPv4OperationError when decrementing by a negative amount that causes overflow', () => {
-      const ip = createIPv4Address('255.255.255.255');
+      const ip = assertIPv4Address('255.255.255.255');
       expect(() => decrementIP(ip, -1)).toThrow(
         'Decrement operation results in an invalid IPv4 address'
       );
@@ -280,8 +280,8 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([address1, address2, expected]) => {
-        const ip1 = createIPv4Address(address1);
-        const ip2 = createIPv4Address(address2);
+        const ip1 = assertIPv4Address(address1);
+        const ip2 = assertIPv4Address(address2);
         const result = ipDifference(ip1, ip2);
         expect(result).toBe(expected);
       });
@@ -294,8 +294,8 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([address1, address2, expected]) => {
-        const ip1 = createIPv4Address(address1);
-        const ip2 = createIPv4Address(address2);
+        const ip1 = assertIPv4Address(address1);
+        const ip2 = assertIPv4Address(address2);
         const result = ipDifference(ip1, ip2);
         expect(result).toBe(expected);
       });
@@ -312,9 +312,9 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip, start, end, expected]) => {
-        const ipAddress = createIPv4Address(ip);
-        const startAddress = createIPv4Address(start);
-        const endAddress = createIPv4Address(end);
+        const ipAddress = assertIPv4Address(ip);
+        const startAddress = assertIPv4Address(start);
+        const endAddress = assertIPv4Address(end);
         const result = isIPInRange(ipAddress, startAddress, endAddress);
         expect(result).toBe(expected);
       });
@@ -329,9 +329,9 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip, start, end, expected]) => {
-        const ipAddress = createIPv4Address(ip);
-        const startAddress = createIPv4Address(start);
-        const endAddress = createIPv4Address(end);
+        const ipAddress = assertIPv4Address(ip);
+        const startAddress = assertIPv4Address(start);
+        const endAddress = assertIPv4Address(end);
         const result = isIPInRange(ipAddress, startAddress, endAddress);
         expect(result).toBe(expected);
       });
@@ -345,9 +345,9 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip, start, end, expected]) => {
-        const ipAddress = createIPv4Address(ip);
-        const startAddress = createIPv4Address(start);
-        const endAddress = createIPv4Address(end);
+        const ipAddress = assertIPv4Address(ip);
+        const startAddress = assertIPv4Address(start);
+        const endAddress = assertIPv4Address(end);
         const result = isIPInRange(ipAddress, startAddress, endAddress);
         expect(result).toBe(expected);
       });
@@ -360,9 +360,9 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip, start, end, expected]) => {
-        const ipAddress = createIPv4Address(ip);
-        const startAddress = createIPv4Address(start);
-        const endAddress = createIPv4Address(end);
+        const ipAddress = assertIPv4Address(ip);
+        const startAddress = assertIPv4Address(start);
+        const endAddress = assertIPv4Address(end);
         const result = isIPInRange(ipAddress, startAddress, endAddress);
         expect(result).toBe(expected);
       });
@@ -375,9 +375,9 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip, start, end, expected]) => {
-        const ipAddress = createIPv4Address(ip);
-        const startAddress = createIPv4Address(start);
-        const endAddress = createIPv4Address(end);
+        const ipAddress = assertIPv4Address(ip);
+        const startAddress = assertIPv4Address(start);
+        const endAddress = assertIPv4Address(end);
         const result = isIPInRange(ipAddress, startAddress, endAddress);
         expect(result).toBe(expected);
       });
@@ -393,8 +393,8 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip1, ip2, expected]) => {
-        const address1 = createIPv4Address(ip1);
-        const address2 = createIPv4Address(ip2);
+        const address1 = assertIPv4Address(ip1);
+        const address2 = assertIPv4Address(ip2);
         const result = compareIPs(address1, address2);
         expect(result).toBe(expected);
       });
@@ -408,8 +408,8 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip1, ip2, expected]) => {
-        const address1 = createIPv4Address(ip1);
-        const address2 = createIPv4Address(ip2);
+        const address1 = assertIPv4Address(ip1);
+        const address2 = assertIPv4Address(ip2);
         const result = compareIPs(address1, address2);
         expect(result).toBe(expected);
       });
@@ -423,8 +423,8 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip1, ip2, expected]) => {
-        const address1 = createIPv4Address(ip1);
-        const address2 = createIPv4Address(ip2);
+        const address1 = assertIPv4Address(ip1);
+        const address2 = assertIPv4Address(ip2);
         const result = compareIPs(address1, address2);
         expect(result).toBe(expected);
       });
@@ -440,7 +440,7 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip, expected]) => {
-        const address = createIPv4Address(ip);
+        const address = assertIPv4Address(ip);
         const result = isClassfulNetwork(address);
         expect(result).toBe(expected);
       });
@@ -454,7 +454,7 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip, expected]) => {
-        const address = createIPv4Address(ip);
+        const address = assertIPv4Address(ip);
         const result = isClassfulNetwork(address);
         expect(result).toBe(expected);
       });
@@ -468,7 +468,7 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip, expected]) => {
-        const address = createIPv4Address(ip);
+        const address = assertIPv4Address(ip);
         const result = isClassfulNetwork(address);
         expect(result).toBe(expected);
       });
@@ -482,7 +482,7 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip, expected]) => {
-        const address = createIPv4Address(ip);
+        const address = assertIPv4Address(ip);
         const result = isClassfulNetwork(address);
         expect(result).toBe(expected);
       });
@@ -496,7 +496,7 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip, expected]) => {
-        const address = createIPv4Address(ip);
+        const address = assertIPv4Address(ip);
         const result = isClassfulNetwork(address);
         expect(result).toBe(expected);
       });
@@ -512,9 +512,9 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip, expected]) => {
-        const address = createIPv4Address(ip);
+        const address = assertIPv4Address(ip);
         const result = getDefaultSubnetMask(address);
-        const resultString = ipv4AddressToString(result);
+        const resultString = convertIPv4AddressToString(result);
         expect(resultString).toBe(expected);
       });
     });
@@ -527,9 +527,9 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip, expected]) => {
-        const address = createIPv4Address(ip);
+        const address = assertIPv4Address(ip);
         const result = getDefaultSubnetMask(address);
-        const resultString = ipv4AddressToString(result);
+        const resultString = convertIPv4AddressToString(result);
         expect(resultString).toBe(expected);
       });
     });
@@ -542,9 +542,9 @@ describe('IPv4 Operations Utilities', () => {
       ];
 
       testCases.forEach(([ip, expected]) => {
-        const address = createIPv4Address(ip);
+        const address = assertIPv4Address(ip);
         const result = getDefaultSubnetMask(address);
-        const resultString = ipv4AddressToString(result);
+        const resultString = convertIPv4AddressToString(result);
         expect(resultString).toBe(expected);
       });
     });
@@ -553,7 +553,7 @@ describe('IPv4 Operations Utilities', () => {
       const testCases: string[] = ['224.0.0.1', '230.0.0.0', '239.255.255.255'];
 
       testCases.forEach((ip) => {
-        const address = createIPv4Address(ip);
+        const address = assertIPv4Address(ip);
         expect(() => getDefaultSubnetMask(address)).toThrow(
           'No default subnet mask for this IP class'
         );
@@ -564,7 +564,7 @@ describe('IPv4 Operations Utilities', () => {
       const testCases: string[] = ['240.0.0.1', '250.100.50.25', '255.255.255.255'];
 
       testCases.forEach((ip) => {
-        const address = createIPv4Address(ip);
+        const address = assertIPv4Address(ip);
         expect(() => getDefaultSubnetMask(address)).toThrow(
           'No default subnet mask for this IP class'
         );

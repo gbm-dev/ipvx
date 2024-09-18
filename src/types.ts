@@ -115,4 +115,5 @@ export interface ValidationOptions {
 export interface ValidationResult {
   isValid: boolean;
   reason?: string;
+  cleanedIP?: string;
 }

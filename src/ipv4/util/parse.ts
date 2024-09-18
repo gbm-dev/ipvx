@@ -29,6 +29,8 @@ export function validateIPv4(ip: string): ValidationResult {
         return { isValid: false, reason: 'IPv4 address must have exactly 4 octets' };
     }
 
+    const cleanedOctets: string[] = [];
+
     for (let i = 0; i < IPV4_OCTET_COUNT; i++) {
         const octet = parseInt(octets[i], 10);
 
@@ -43,9 +45,11 @@ export function validateIPv4(ip: string): ValidationResult {
         if (octets[i].length > 1 && octets[i][0] === '0') {
             return { isValid: false, reason: `Leading zeros are not allowed: ${octets[i]}` };
         }
+
+        cleanedOctets.push(octet.toString());
     }
 
-    return { isValid: true };
+    return { isValid: true, cleanedIP: cleanedOctets.join('.') };
 }
 
 /**
