@@ -100,16 +100,27 @@ export function bitflagToOctets(ip: IPv4Bitflag): [number, number, number, numbe
  *
  * @param {[number, number, number, number]} octets - An array containing the four octets of the IPv4 address.
  * @returns {IPv4Bitflag} The IPv4 address in bitflag format.
+ * @throws {Error} If the input is not an array of exactly 4 octets, or if any octet is not a valid 8-bit unsigned integer (0-255).
  *
  * @example
  * octetsToBitflag([192, 168, 1, 1]); // Returns 0xC0A80101
  *
  * @complexity
- * Time complexity: O(1) - The function performs a fixed number of bitwise operations.
+ * Time complexity: O(1) - The function performs a fixed number of operations.
  * Space complexity: O(1) - The function uses a constant amount of space.
  */
 export function octetsToBitflag(octets: [number, number, number, number]): IPv4Bitflag {
-    return (((octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]) >>> 0) as IPv4Bitflag;
+  if (!Array.isArray(octets) || octets.length !== 4) {
+      throw new Error('Input must be an array of exactly 4 octets');
+  }
+
+  for (const octet of octets) {
+      if (!Number.isInteger(octet) || octet < 0 || octet > 255) {
+          throw new Error(`Invalid octet value: ${octet}. Octets must be integers between 0 and 255.`);
+      }
+  }
+
+  return (((octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]) >>> 0) as IPv4Bitflag;
 }
 
 /**
@@ -127,17 +138,17 @@ export function octetsToBitflag(octets: [number, number, number, number]): IPv4B
  * Space complexity: O(1) - Uses constant extra space.
  */
 export function setOctetInIP(ip: IPv4Address, octetPosition: number, value: number): IPv4Address {
-    if (octetPosition < 0 || octetPosition > 3) {
-      throw new Error('Invalid octet position. Must be between 0 and 3 inclusive.');
-    }
-    if (value < 0 || value > 255) {
-      throw new Error('Invalid octet value. Must be between 0 and 255 inclusive.');
-    }
-    
-    const ipBitflag = ipToBitflag(ip);
-    const newIpBitflag = setOctet(ipBitflag, octetPosition, value);
-    return bitflagToIP(newIpBitflag);
+  if (!Number.isInteger(octetPosition) || octetPosition < 0 || octetPosition > 3) {
+      throw new Error('Invalid octet position. Must be an integer between 0 and 3 inclusive.');
   }
+  if (!Number.isInteger(value) || value < 0 || value > 255) {
+      throw new Error('Invalid octet value. Must be an integer between 0 and 255 inclusive.');
+  }
+  
+  const ipBitflag = ipToBitflag(ip);
+  const newIpBitflag = setOctet(ipBitflag, octetPosition, value);
+  return bitflagToIP(newIpBitflag);
+}
   
   /**
    * @function getOctetFromIP
@@ -224,6 +235,21 @@ export function setOctetInIP(ip: IPv4Address, octetPosition: number, value: numb
     return bitflagToIP(ipBitflag);
   }
 
-function bitflagToIP(ipBitflag: any): IPv4Address {
-  throw new Error('Function not implemented.');
+/**
+ * @function bitflagToIP
+ * @description Converts an IPv4 address from bitflag format to string format.
+ *
+ * @param {IPv4Bitflag} ipBitflag - The IPv4 address in bitflag format (a 32-bit unsigned integer).
+ * @returns {IPv4Address} The IPv4 address in string format (e.g., "192.168.1.1").
+ *
+ * @example
+ * bitflagToIP(0xC0A80101 as IPv4Bitflag); // Returns "192.168.1.1"
+ *
+ * @complexity
+ * Time complexity: O(1) - The function performs a fixed number of operations.
+ * Space complexity: O(1) - The function uses a constant amount of space.
+ */
+export function bitflagToIP(ipBitflag: IPv4Bitflag): IPv4Address {
+  const octets = bitflagToOctets(ipBitflag);
+  return octets.join('.') as IPv4Address;
 }

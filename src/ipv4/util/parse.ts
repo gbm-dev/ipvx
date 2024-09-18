@@ -5,10 +5,15 @@ import { IPv4ValidationError } from '@src/ipv4/errors';
 import { bitflagToOctets, octetsToBitflag } from './octet';
 
 /**
- * Validates an IPv4 address string.
+ * @function validateIPv4
+ * @description Validates an IPv4 address string.
  * 
  * @param {string} ip - The IPv4 address to validate.
  * @returns {ValidationResult} The validation result.
+ *
+ * @complexity
+ * Time complexity: O(n), where n is the length of the input string.
+ * Space complexity: O(1), as it uses a constant amount of additional space.
  */
 export function validateIPv4(ip: string): ValidationResult {
     // Check for invalid characters
@@ -44,11 +49,16 @@ export function validateIPv4(ip: string): ValidationResult {
 }
 
 /**
- * Parses an IPv4 address string into its bitflag representation.
+ * @function parseIPv4
+ * @description Parses an IPv4 address string into its bitflag representation.
  * 
  * @param {string} ip - The IPv4 address string to parse.
  * @returns {IPv4Bitflag} The bitflag representation of the IPv4 address.
  * @throws {IPv4ValidationError} If the input is not a valid IPv4 address.
+ *
+ * @complexity
+ * Time complexity: O(n), where n is the length of the input string (due to validation).
+ * Space complexity: O(1), as it uses a constant amount of additional space.
  */
 export function parseIPv4(ip: string): IPv4Bitflag {
     const validationResult = validateIPv4(ip);
@@ -61,10 +71,15 @@ export function parseIPv4(ip: string): IPv4Bitflag {
 }
 
 /**
- * Converts an IPv4Bitflag to its string representation.
+ * @function formatIPv4
+ * @description Converts an IPv4Bitflag to its string representation.
  * 
  * @param {IPv4Bitflag} bitflag - The IPv4 bitflag to convert.
  * @returns {IPv4Address} The string representation of the IPv4 address.
+ *
+ * @complexity
+ * Time complexity: O(1) - The function performs a fixed number of operations.
+ * Space complexity: O(1) - The function uses a constant amount of space.
  */
 export function formatIPv4(bitflag: IPv4Bitflag): IPv4Address {
     const octets = bitflagToOctets(bitflag);
@@ -72,33 +87,45 @@ export function formatIPv4(bitflag: IPv4Bitflag): IPv4Address {
 }
 
 /**
- * Checks if a character is valid based on a precomputed bitmask of allowed characters.
+ * @function bitflagToIP
+ * @description Alias for formatIPv4. Converts an IPv4Bitflag to its string representation.
  *
- * @param {number} charCode - The character code to check.
- * @param {number} validCharMask - Bitmask of valid characters.
- * @returns {boolean} True if the character is valid, false otherwise.
+ * @param {IPv4Bitflag} bitflag - The IPv4 bitflag to convert.
+ * @returns {IPv4Address} The string representation of the IPv4 address.
+ *
+ * @complexity
+ * Time complexity: O(1) - Same as formatIPv4.
+ * Space complexity: O(1) - Same as formatIPv4.
  */
-export function isValidChar(charCode: number, validCharMask: number): boolean {
-    return (validCharMask & (1 << charCode)) !== 0;
-}
+export const bitflagToIP = formatIPv4;
 
 /**
- * Converts an IPv4 address string to its numeric representation.
+ * @function ipToNumber
+ * @description Converts an IPv4 address string to its numeric representation.
  * 
  * @param {IPv4Address} ip - The IPv4 address to convert.
  * @returns {number} The numeric representation of the IPv4 address.
  * @throws {IPv4ValidationError} If the input is not a valid IPv4 address.
+ *
+ * @complexity
+ * Time complexity: O(n), where n is the length of the input string (due to validation in parseIPv4).
+ * Space complexity: O(1), as it uses a constant amount of additional space.
  */
 export function ipToNumber(ip: IPv4Address): number {
     return parseIPv4(ip) as number;
 }
 
 /**
- * Converts a numeric representation to an IPv4 address string.
+ * @function numberToIP
+ * @description Converts a numeric representation to an IPv4 address string.
  * 
  * @param {number} num - The numeric representation of an IPv4 address.
  * @returns {IPv4Address} The IPv4 address string.
  * @throws {Error} If the input is not a valid IPv4 numeric representation.
+ *
+ * @complexity
+ * Time complexity: O(1) - The function performs a fixed number of operations.
+ * Space complexity: O(1) - The function uses a constant amount of space.
  */
 export function numberToIP(num: number): IPv4Address {
     if (num < 0 || num > 0xFFFFFFFF) {
@@ -108,28 +135,63 @@ export function numberToIP(num: number): IPv4Address {
 }
 
 /**
- * Converts an IPv4 address to its binary string representation.
+ * @function ipToBinary
+ * @description Converts an IPv4 address to its binary string representation.
  * 
  * @param {IPv4Address} ip - The IPv4 address to convert.
  * @returns {string} The binary string representation of the IPv4 address.
  * @throws {IPv4ValidationError} If the input is not a valid IPv4 address.
+ *
+ * @complexity
+ * Time complexity: O(n), where n is the length of the input string (due to validation in parseIPv4).
+ * Space complexity: O(1), as it uses a constant amount of additional space.
  */
 export function ipToBinary(ip: IPv4Address): string {
-    const num = ipToNumber(ip);
-    return num.toString(2).padStart(32, '0');
+    const bitflag = parseIPv4(ip);
+    return bitflag.toString(2).padStart(32, '0');
 }
 
 /**
- * Converts a binary string to an IPv4 address.
+ * @function binaryToIP
+ * @description Converts a binary string to an IPv4 address.
  * 
  * @param {string} binary - The binary string representation of an IPv4 address.
  * @returns {IPv4Address} The IPv4 address.
  * @throws {Error} If the input is not a valid 32-bit binary string.
+ *
+ * @complexity
+ * Time complexity: O(1) - The function performs a fixed number of operations (32 iterations).
+ * Space complexity: O(1) - The function uses a constant amount of space.
  */
 export function binaryToIP(binary: string): IPv4Address {
-    if (!/^[01]{32}$/.test(binary)) {
-        throw new Error('Invalid binary string for IPv4 address');
+    if (binary.length !== 32) {
+        throw new Error('Invalid binary string length for IPv4 address');
     }
-    const num = parseInt(binary, 2);
-    return numberToIP(num);
+
+    let bitflag: IPv4Bitflag = 0 as IPv4Bitflag;
+
+    for (let i = 0; i < 32; i++) {
+        if (binary[i] !== '0' && binary[i] !== '1') {
+            throw new Error('Invalid character in binary string');
+        }
+        bitflag = or(leftShift(bitflag, 1), binary[i] === '1' ? 1 : 0) as IPv4Bitflag;
+    }
+
+    return formatIPv4(bitflag);
+}
+
+/**
+ * @function isValidChar
+ * @description Checks if a character is valid based on a precomputed bitmask of allowed characters.
+ *
+ * @param {number} charCode - The character code to check.
+ * @param {number} validCharMask - Bitmask of valid characters.
+ * @returns {boolean} True if the character is valid, false otherwise.
+ *
+ * @complexity
+ * Time complexity: O(1) - The function performs a constant number of bitwise operations.
+ * Space complexity: O(1) - The function uses a constant amount of space.
+ */
+export function isValidChar(charCode: number, validCharMask: number): boolean {
+    return (validCharMask & (1 << charCode)) !== 0;
 }

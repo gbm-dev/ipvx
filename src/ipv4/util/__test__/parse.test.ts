@@ -4,13 +4,10 @@
  */
 
 import { expect, describe, it } from 'bun:test';
-import { parseIPv4, formatIPv4, isValidChar } from '@src/ipv4/util/parse';
-import { validAddresses, invalidAddresses } from '@src/ipv4/__tests__/ipv4-dataset';
+import { parseIPv4, formatIPv4, isValidChar, validateIPv4 } from '../parse';
+import { validAddresses, invalidAddresses } from '@test/ipv4-dataset';
 import type { IPv4Address, IPv4Bitflag } from '@src/types';
-import fs from 'fs';
-
-// Expose validateIPv4 for testing purposes
-import { validateIPv4 } from '@src/ipv4/util/parse';
+import { writeResultsToFile } from '@test/utils';
 import { VALID_IPV4_CHARS } from '@src/ipv4/constants';
 
 // Function to log detailed results
@@ -19,14 +16,6 @@ function logDetailedResults(title: string, results: { ip: string; result: boolea
   results.forEach(({ ip, result, reason }) => {
     console.log(`  ${ip}: ${result ? 'PASS' : 'FAIL'}${reason ? ` (${reason})` : ''}`);
   });
-}
-
-// Function to write results to a file
-function writeResultsToFile(filename: string, results: { ip: string; result: boolean; reason?: string }[]) {
-  const content = results.map(({ ip, result, reason }) => 
-    `${ip},${result ? 'PASS' : 'FAIL'}${reason ? `,${reason}` : ''}`
-  ).join('\n');
-  fs.writeFileSync(filename, content);
 }
 
 // Utility function for assertions
@@ -46,7 +35,7 @@ describe('IPv4::Parse', () => {
       });
 
       logDetailedResults('Valid IP Address Test Results', results);
-      writeResultsToFile('@test/results/valid_ip_test_results.csv', results);
+      writeResultsToFile('valid_ip_test_results.csv', results, __filename);
 
       const failedTests = results.filter(r => !r.result);
       assertNoFailures(failedTests, `${failedTests.length} valid IP addresses failed validation`);
@@ -59,7 +48,7 @@ describe('IPv4::Parse', () => {
       });
 
       logDetailedResults('Invalid IP Address Test Results', results);
-      writeResultsToFile('@test/results/invalid_ip_test_results.csv', results);
+      writeResultsToFile('invalid_ip_test_results.csv', results, __filename);
 
       const failedTests = results.filter(r => !r.result);
       assertNoFailures(failedTests, `${failedTests.length} invalid IP addresses were incorrectly validated`);
@@ -89,7 +78,7 @@ describe('IPv4::Parse', () => {
       });
 
       logDetailedResults('IP to Bitflag Parsing Test Results', results);
-      writeResultsToFile('@test/results/ip_to_bitflag_parsing_test_results.csv', results);
+      writeResultsToFile('ip_to_bitflag_parsing_test_results.csv', results, __filename);
 
       const failedTests = results.filter(r => !r.result);
       assertNoFailures(failedTests, `${failedTests.length} IP to bitflag parsing operations failed`);
@@ -121,7 +110,7 @@ describe('IPv4::Parse', () => {
       });
 
       logDetailedResults('Bitflag to IP Formatting Test Results', results);
-      writeResultsToFile('@test/results/bitflag_to_ip_formatting_test_results.csv', results);
+      writeResultsToFile('bitflag_to_ip_formatting_test_results.csv', results, __filename);
 
       const failedTests = results.filter(r => !r.result);
       assertNoFailures(failedTests, `${failedTests.length} bitflag to IP formatting operations failed`);
@@ -145,7 +134,7 @@ describe('IPv4::Parse', () => {
       });
 
       logDetailedResults('Round-trip Conversion Test Results', results);
-      writeResultsToFile('@test/results/round_trip_conversion_test_results.csv', results);
+      writeResultsToFile('round_trip_conversion_test_results.csv', results, __filename);
 
       const failedTests = results.filter(r => !r.result);
       assertNoFailures(failedTests, `${failedTests.length} round-trip conversions failed`);

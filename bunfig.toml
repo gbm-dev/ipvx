@@ -1,2 +1,4 @@
 [test]
 coverage = true
+[resolve]
+"@test" = "__test__"
