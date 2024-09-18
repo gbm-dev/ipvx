@@ -128,11 +128,12 @@ export function ipToNumber(ip: IPv4Address): number {
  * Space complexity: O(1) - The function uses a constant amount of space.
  */
 export function numberToIP(num: number): IPv4Address {
-    if (num < 0 || num > 0xFFFFFFFF) {
+    if (!Number.isInteger(num) || num < 0 || num > 0xFFFFFFFF || !isFinite(num)) {
         throw new Error('Invalid IPv4 numeric representation');
     }
     return formatIPv4(num as IPv4Bitflag);
 }
+
 
 /**
  * @function ipToBinary
