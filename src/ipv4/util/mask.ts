@@ -7,7 +7,7 @@ import type { IPv4Bitflag } from '@src/types';
 import { generateBitmask, countLeadingOnes, invertMask } from '@src/ipv4/lib/bitwise/bitmask';
 import { and, or, xor } from '@src/ipv4/lib/bitwise/basic';
 import { IPV4_MAX_PREFIX_LENGTH, IPV4_MIN_PREFIX_LENGTH } from '@src/ipv4/constants';
-import { IPv4ValidationError } from '@src/ipv4/errors';
+import { IPv4ValidationError } from '@src/ipv4/error';
 
 /**
  * @function createMask

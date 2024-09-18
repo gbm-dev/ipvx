@@ -1,7 +1,7 @@
 import type { IPv4Address, IPv4Bitflag, ValidationResult } from '@src/types';
 import { leftShift, or } from '@src/ipv4/lib/bitwise/basic';
 import { IPV4_OCTET_COUNT, IPV4_MAX_OCTET_VALUE, VALID_IPV4_CHARS } from '@src/ipv4/constants';
-import { IPv4ValidationError } from '@src/ipv4/errors';
+import { IPv4ValidationError } from '@src/ipv4/error';
 import { bitflagToOctets, octetsToBitflag } from './octet';
 
 /**

@@ -5,7 +5,7 @@
  */
 
 import type { IPv4Address } from '@src/types';
-import { isIPInRange } from '@src/ipv4/operations';
+import { isIPInRange } from '@src/ipv4/core/operation';
 
 /**
  * @function isPrivateIP

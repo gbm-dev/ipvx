@@ -1,8 +1,8 @@
 import type { IPv4Address, IPv4Bitflag } from "@src/types";
-import { bitflagToIP, ipToBitflag } from "./operations";
+import { bitflagToIP, ipToBitflag } from "./operation";
 import { countSetBits } from "../lib/bitwise/basic";
 import { generateBitmask } from "../lib/bitwise/bitmask";
-import { IPv4OperationError } from "@src/ipv4/errors";
+import { IPv4OperationError } from "@src/ipv4/error";
 
 /**
  * @function getNetworkAddress

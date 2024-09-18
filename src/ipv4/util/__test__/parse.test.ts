@@ -5,11 +5,11 @@
 
 import { expect, describe, it } from 'bun:test';
 import { parseIPv4, formatIPv4, isValidChar, validateIPv4, ipToNumber, numberToIP, ipToBinary, binaryToIP } from '../parse';
-import { validAddresses, invalidAddresses } from '@test/ipv4-dataset';
+import { validAddresses, invalidAddresses } from '@src/ipv4/__test__/ipv4-dataset';
 import type { IPv4Address, IPv4Bitflag } from '@src/types';
 import { writeResultsToFile } from '@test/utils';
 import { VALID_IPV4_CHARS } from '@src/ipv4/constants';
-import { IPv4ValidationError } from '@src/ipv4/errors';
+import { IPv4ValidationError } from '@src/ipv4/error';
 
 // Function to log detailed results
 function logDetailedResults(title: string, results: { ip: string; result: boolean; reason?: string }[]) {

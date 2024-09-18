@@ -131,10 +131,17 @@ describe('IPv4 Classification Utilities', () => {
             expect(isReservedIP(0xC0000000 as IPv4Bitflag)).toBe(true); // 192.0.0.0
             expect(isReservedIP(0xC00000FF as IPv4Bitflag)).toBe(true); // 192.0.0.255
             expect(isReservedIP(0xC0000200 as IPv4Bitflag)).toBe(true); // 192.0.2.0
+            expect(isReservedIP(0xC6336400 as IPv4Bitflag)).toBe(true); // 198.51.100.0
             expect(isReservedIP(0xC63364FF as IPv4Bitflag)).toBe(true); // 198.51.100.255
             expect(isReservedIP(0xCB007100 as IPv4Bitflag)).toBe(true); // 203.0.113.0
             expect(isReservedIP(0xF0000000 as IPv4Bitflag)).toBe(true); // 240.0.0.0
             expect(isReservedIP(0xFFFFFFFF as IPv4Bitflag)).toBe(true); // 255.255.255.255
+
+            // Additional test cases
+            expect(isReservedIP(0xC0000001 as IPv4Bitflag)).toBe(true); // 192.0.0.1
+            expect(isReservedIP(0xC0000201 as IPv4Bitflag)).toBe(true); // 192.0.2.1
+            expect(isReservedIP(0xC6336401 as IPv4Bitflag)).toBe(true); // 198.51.100.1
+            expect(isReservedIP(0xCB007101 as IPv4Bitflag)).toBe(true); // 203.0.113.1
         });
 
         it('should correctly identify non-reserved IP addresses', () => {
@@ -167,6 +174,10 @@ describe('IPv4 Classification Utilities', () => {
             expect(isGloballyRoutableIP(0x64400000 as IPv4Bitflag)).toBe(false); // 100.64.0.0 (non-globally routable)
             expect(isGloballyRoutableIP(0x647FFFFF as IPv4Bitflag)).toBe(false); // 100.127.255.255 (non-globally routable)
             expect(isGloballyRoutableIP(0xF0000000 as IPv4Bitflag)).toBe(false); // 240.0.0.0 (non-globally routable)
+
+            // Additional negative test cases
+            expect(isGloballyRoutableIP(0x00FFFFFF as IPv4Bitflag)).toBe(false); // 0.255.255.255
+            expect(isGloballyRoutableIP(0x00000001 as IPv4Bitflag)).toBe(false); // 0.0.0.1
         });
     });
 

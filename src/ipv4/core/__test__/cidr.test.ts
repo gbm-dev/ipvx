@@ -18,7 +18,7 @@ import {
   isValidCIDR,
   getIPRange
 } from '@src/ipv4/core/cidr';
-import { IPv4ValidationError, IPv4SubnetError } from '@src/ipv4/errors';
+import { IPv4ValidationError, IPv4SubnetError } from '@src/ipv4/error';
 import type { IPv4Address } from '@src/types';
 
 // Helper function to create IPv4Address without explicit casting

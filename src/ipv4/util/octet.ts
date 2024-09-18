@@ -5,7 +5,7 @@
 
 import type { IPv4Address, IPv4Bitflag } from '@src/types';
 import { extractBits } from '@src/ipv4/lib/bitwise/bitmask';
-import { ipToBitflag } from '../core/operations';
+import { ipToBitflag } from '../core/operation';
 
 /**
  * @function extractOctet

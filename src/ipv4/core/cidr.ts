@@ -5,11 +5,10 @@
  */
 
 import type { IPAddress, IPv4Address, IPv4Bitflag } from '@src/types';
-import { IPv4ValidationError, IPv4SubnetError } from '@src/ipv4/errors';
+import { IPv4ValidationError, IPv4SubnetError } from '@src/ipv4/error';
 import { IPV4_MAX_PREFIX_LENGTH, IPV4_MIN_PREFIX_LENGTH } from '@src/ipv4/constants';
 import { parseIPv4, formatIPv4 } from '@src/ipv4/util/parse';
-import { createMask, getPrefixLength } from '@src/ipv4/util/mask';
-import { applyMask, generateBitmask } from '@src/ipv4/lib/bitwise/bitmask';
+import { applyMask, createMask, getMaskPrefix } from '@src/ipv4/util/mask';
 import { and, or, not } from '@src/ipv4/lib/bitwise/basic';
 
 /**
@@ -63,7 +62,7 @@ export function parseCIDR(cidr: string): [IPv4Address, number] {
  */
 export function calculateNetworkAddress(ip: IPv4Address, prefixLength: number): IPv4Address {
     const ipBitflag = parseIPv4(ip);
-    const mask = createSubnetMask(prefixLength);
+    const mask = createMask(prefixLength);
     const networkBitflag = (applyMask(ipBitflag, mask)) >>> 0;
     return formatIPv4(networkBitflag as IPv4Bitflag);
 }
@@ -86,7 +85,7 @@ export function calculateNetworkAddress(ip: IPv4Address, prefixLength: number): 
  */
 export function calculateBroadcastAddress(ip: IPv4Address, prefixLength: number): IPv4Address {
     const ipBitflag = parseIPv4(ip);
-    const mask = createSubnetMask(prefixLength);
+    const mask = createMask(prefixLength);
     const invertedMask = (not(mask)) >>> 0;
     const broadcastBitflag = (or(ipBitflag, invertedMask)) >>> 0;
     return formatIPv4(broadcastBitflag as IPv4Bitflag);
@@ -112,7 +111,7 @@ export function calculateBroadcastAddress(ip: IPv4Address, prefixLength: number)
 export function isInSubnet(ip: IPv4Address, subnetIp: IPv4Address, prefixLength: number): boolean {
     const ipBitflag = parseIPv4(ip);
     const subnetBitflag = parseIPv4(subnetIp);
-    const mask = createSubnetMask(prefixLength);
+    const mask = createMask(prefixLength);
     return (applyMask(ipBitflag, mask) >>> 0) === (applyMask(subnetBitflag, mask) >>> 0);
 }
 
@@ -252,9 +251,9 @@ export function summarizeSubnets(subnets: IPv4Address[]): [IPv4Address, number] 
     const maxIp = ipIntegers[ipIntegers.length - 1];
 
     const diff = minIp ^ maxIp;
-    const commonPrefixLength = IPV4_MAX_PREFIX_LENGTH - getPrefixLength(diff as IPv4Bitflag);
+    const commonPrefixLength = IPV4_MAX_PREFIX_LENGTH - getMaskPrefix(diff as IPv4Bitflag);
 
-    const mask = createSubnetMask(commonPrefixLength);
+    const mask = createMask(commonPrefixLength);
     const networkInt = (applyMask(minIp, mask)) >>> 0;
 
     return [formatIPv4(networkInt as IPv4Bitflag), commonPrefixLength];
@@ -341,7 +340,7 @@ export function isSubnetOf(subnetA: IPv4Address, prefixLengthA: number, subnetB:
 
     const networkA = parseIPv4(subnetA);
     const networkB = parseIPv4(subnetB);
-    const maskB = createSubnetMask(prefixLengthB);
+    const maskB = createMask(prefixLengthB);
 
     return applyMask(networkA, maskB) === applyMask(networkB, maskB);
 }
@@ -368,10 +367,10 @@ export function findCommonSupernet(subnetA: IPv4Address, prefixLengthA: number, 
     const networkB = parseIPv4(subnetB);
 
     const diff = networkA ^ networkB;
-    const differentBits = getPrefixLength(diff as IPv4Bitflag);
+    const differentBits = getMaskPrefix(diff as IPv4Bitflag);
     const commonPrefixLength = IPV4_MAX_PREFIX_LENGTH - differentBits;
 
-    const mask = createSubnetMask(commonPrefixLength);
+    const mask = createMask(commonPrefixLength);
     const commonNetwork = (applyMask(networkA, mask)) >>> 0;
 
     return [formatIPv4(commonNetwork as IPv4Bitflag), commonPrefixLength];
@@ -397,7 +396,7 @@ export function calculateSubnetMaskFromPrefixLength(prefixLength: number): IPv4A
         throw new IPv4SubnetError('Invalid prefix length');
     }
 
-    const mask = createSubnetMask(prefixLength);
+    const mask = createMask(prefixLength);
     return formatIPv4(mask >>> 0);
 } 
 
@@ -417,10 +416,10 @@ export function calculateSubnetMaskFromPrefixLength(prefixLength: number): IPv4A
  */
 export function calculatePrefixLengthFromSubnetMask(subnetMask: IPv4Address): number {
     const maskInt = parseIPv4(subnetMask);
-    const prefixLength = getPrefixLength(maskInt);
+    const prefixLength = getMaskPrefix(maskInt);
 
     // Validate that the subnet mask is contiguous
-    const expectedMask = createSubnetMask(prefixLength);
+    const expectedMask = createMask(prefixLength);
     if (maskInt !== expectedMask) {
         throw new IPv4ValidationError('Invalid subnet mask');
     }

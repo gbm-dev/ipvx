@@ -9,7 +9,7 @@ import {
   expandMask,
   getMaskDifference
 } from '../mask';
-import { IPv4ValidationError } from '@src/ipv4/errors';
+import { IPv4ValidationError } from '@src/ipv4/error';
 
 describe('IPv4::Utils::Mask::createMask', () => {
   it('should create correct subnet masks for various prefix lengths', () => {

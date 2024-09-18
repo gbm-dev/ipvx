@@ -9,7 +9,7 @@ import {
   IPv4CIDRValidationError,
   IPv4SubnetError,
   IPv4OperationError
-} from '@src/ipv4/errors';
+} from '@src/ipv4/error';
 
 describe('IPv4::Errors', () => {
   describe('IPv4ValidationError', () => {
